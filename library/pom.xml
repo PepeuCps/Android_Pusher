@@ -8,13 +8,13 @@
 		<version>7</version>
 	</parent>
 
-	<groupId>com.github.emorym</groupId>
+	<groupId>com.github.kevinsawicki</groupId>
 	<artifactId>android-pusher</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Android Pusher</name>
 	<description>Android library for pusher.com</description>
-	<url>https://github.com/EmoryM/Android_Pusher</url>
+	<url>https://github.com/kevinsawicki/Android_Pusher</url>
 
 	<issueManagement>
 		<url>https://github.com/EmoryM/Android_Pusher/issues</url>
@@ -30,9 +30,9 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/EmoryM/Android_Pusher</url>
-		<connection>scm:git:git://github.com/EmoryM/Android_Pusher.git</connection>
-		<developerConnection>scm:git:git@github.com:EmoryM/Android_Pusher.git</developerConnection>
+		<url>https://github.com/kevinsawicki/Android_Pusher</url>
+		<connection>scm:git:git://github.com/kevinsawicki/Android_Pusher.git</connection>
+		<developerConnection>scm:git:git@github.com:kevinsawicki/Android_Pusher.git</developerConnection>
 	</scm>
 
 	<developers>
