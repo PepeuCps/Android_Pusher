@@ -15,7 +15,9 @@ package com.emorym.android_pusher;
  *  limitations under the License. 
  */
 
+import static android.util.Log.DEBUG;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,10 +32,12 @@ import android.util.Log;
 import de.roderick.weberknecht.WebSocket;
 import de.roderick.weberknecht.WebSocketConnection;
 import de.roderick.weberknecht.WebSocketEventHandler;
+import de.roderick.weberknecht.WebSocketException;
 import de.roderick.weberknecht.WebSocketMessage;
 
 public class Pusher
 {
+	private static final String TAG = "Pusher";
 	protected static final long WATCHDOG_SLEEP_TIME_MS = 5000;
 	private final String VERSION = "1.8.3";
 	private final String HOST = "ws.pusherapp.com";
@@ -89,9 +93,10 @@ public class Pusher
 			mWatchdog = null;
 			mWebSocket.close();
 		}
-		catch( Exception e )
+		catch( WebSocketException e )
 		{
-			e.printStackTrace();
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Exception closing web socket", e);
 		}
 	}
 
@@ -128,7 +133,8 @@ public class Pusher
 			}
 			catch( Exception e )
 			{
-				e.printStackTrace();
+				if (Log.isLoggable(TAG, DEBUG))
+					Log.d(TAG, "Exception sending subscribe message", e);
 			}
 		}
 
@@ -149,7 +155,8 @@ public class Pusher
 				}
 				catch( Exception e )
 				{
-					e.printStackTrace();
+					if (Log.isLoggable(TAG, DEBUG))
+						Log.d(TAG, "Exception sending unsubscribe message", e);
 				}
 			}
 
@@ -168,7 +175,8 @@ public class Pusher
 		}
 		catch( Exception e )
 		{
-			e.printStackTrace();
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Exception sending subscribe message", e);
 		}
 	}
 
@@ -195,12 +203,18 @@ public class Pusher
 			data.put( "channel", channel );
 			message.put( "event", event_name );
 			message.put( "data", data );
-			Log.d( "Message", message.toString() );
+			
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Message: " + message.toString());
 			mWebSocket.send( message.toString() );
 		}
-		catch( Exception e )
+		catch( WebSocketException e )
 		{
-			e.printStackTrace();
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Exception sending message", e);
+		} catch (JSONException e) {
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "JSON exception", e);
 		}
 	}
 	
@@ -214,13 +228,15 @@ public class Pusher
 		try
 		{
 			URI url = new URI( prefix + HOST + ":" + port + path );
-			Log.d( "Connecting", url.toString() );
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Connecting to: " + url.toString());
 			mWebSocket = new WebSocketConnection( url );
 			mWebSocket.setEventHandler( new WebSocketEventHandler()
 			{
 				public void onOpen()
 				{
-					Log.d( "Open", "WebSocket Open" );
+					if (Log.isLoggable(TAG, DEBUG))
+						Log.d(TAG, "WebSocket Open");
 					subscribeToAllChannels();
 				}
 
@@ -228,7 +244,8 @@ public class Pusher
 				{
 					try
 					{
-						Log.d( "Message", message.getText() );
+						if (Log.isLoggable(TAG, DEBUG))
+							Log.d(TAG, "Message: " + message.getText());
 
 						JSONObject jsonMessage = new JSONObject( message.getText() );
 
@@ -240,7 +257,10 @@ public class Pusher
 
 							mSocketId = data.getString( "socket_id" );
 
-							Log.d( "Connection Established", "Socket Id: " + mSocketId );
+							if (Log.isLoggable(TAG, DEBUG))
+								Log.d(TAG,
+										"Connection Established with Socket Id: "
+												+ mSocketId);
 						}
 						else
 						{
@@ -264,15 +284,17 @@ public class Pusher
 							mHandler.sendMessage( msg );
 						}
 					}
-					catch( Exception e )
+					catch( JSONException e )
 					{
-						e.printStackTrace();
+						if (Log.isLoggable(TAG, DEBUG))
+							Log.d(TAG, "JSON exception", e);
 					}
 				}
 
 				public void onClose()
 				{
-					Log.d( "Close", "WebSocket Closed" );
+					if (Log.isLoggable(TAG, DEBUG))
+						Log.d(TAG, "WebSocket Closed");
 				}
 			} );
 
@@ -295,7 +317,8 @@ public class Pusher
 						}
 						catch( Exception e )
 						{
-							e.printStackTrace();
+							if (Log.isLoggable(TAG, DEBUG))
+								Log.d(TAG, "Exception connecting", e);
 						}
 					}
 				}
@@ -303,9 +326,13 @@ public class Pusher
 
 			mWatchdog.start();
 		}
-		catch( Exception e )
+		catch( WebSocketException e )
 		{
-			e.printStackTrace();
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Web socket exception", e);
+		} catch (URISyntaxException e) {
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "URI syntax exception", e);
 		}
 	}
 
@@ -397,7 +424,8 @@ public class Pusher
 		
 		public void handleMessage(Message msg)
 		{
-			Log.d("handle", msg.getData().toString());
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Message handled: " + msg.getData().toString());
 			
 			try
 			{
@@ -419,7 +447,8 @@ public class Pusher
 					}
 				}
 			} catch (JSONException e) {
-				e.printStackTrace();
+				if (Log.isLoggable(TAG, DEBUG))
+					Log.d(TAG, "JSON exception", e);
 			}
 		}
 	}

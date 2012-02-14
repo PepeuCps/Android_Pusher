@@ -23,6 +23,7 @@
 
 package de.roderick.weberknecht;
 
+import static android.util.Log.DEBUG;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -39,6 +40,7 @@ import javax.net.ssl.SSLSocketFactory;
 import android.util.Log;
 
 public class WebSocketConnection implements WebSocket {
+	private static final String TAG = "WebSocketConnection";
 	private URI url = null;
 	private WebSocketEventHandler eventHandler = null;
 
@@ -130,10 +132,8 @@ public class WebSocketConnection implements WebSocket {
 			connected = true;
 			eventHandler.onOpen();
 		} catch (WebSocketException wse) {
-			wse.printStackTrace();
 			throw wse;
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
 			throw new WebSocketException("error while connecting: "
 					+ ioe.getMessage(), ioe);
 		}
@@ -150,13 +150,12 @@ public class WebSocketConnection implements WebSocket {
 			output.write(data.getBytes(("UTF-8")));
 			output.write(0xff);
 			// output.write("\r\n".getBytes());
-			Log.d("Output", "Wrote to Output");
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Wrote to Output");
 		} catch (UnsupportedEncodingException uee) {
-			uee.printStackTrace();
 			throw new WebSocketException(
 					"error while sending text data: unsupported encoding", uee);
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
 			throw new WebSocketException("error while sending text data", ioe);
 		}
 	}
@@ -186,12 +185,14 @@ public class WebSocketConnection implements WebSocket {
 				close();
 			}
 		} catch (WebSocketException wse) {
-			wse.printStackTrace();
+			if (Log.isLoggable(TAG, DEBUG))
+				Log.d(TAG, "Exception closing web socket", wse);
 		}
 	}
 
 	public synchronized void close() throws WebSocketException {
-		Log.d("Close", "WebSocket closed");
+		if (Log.isLoggable(TAG, DEBUG))
+			Log.d(TAG, "WebSocket closed");
 
 		if (!connected) {
 			return;
@@ -218,7 +219,6 @@ public class WebSocketConnection implements WebSocket {
 			output.write(0xff00);
 			output.write("\r\n".getBytes());
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
 			throw new WebSocketException("error while sending close handshake",
 					ioe);
 		}
@@ -242,10 +242,8 @@ public class WebSocketConnection implements WebSocket {
 				socket.setKeepAlive(true);
 				socket.setSoTimeout(0);
 			} catch (UnknownHostException uhe) {
-				uhe.printStackTrace();
 				throw new WebSocketException("unknown host: " + host, uhe);
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
 				throw new WebSocketException("error while creating socket to "
 						+ url, ioe);
 			}
@@ -257,10 +255,8 @@ public class WebSocketConnection implements WebSocket {
 				SocketFactory factory = SSLSocketFactory.getDefault();
 				socket = factory.createSocket(host, port);
 			} catch (UnknownHostException uhe) {
-				uhe.printStackTrace();
 				throw new WebSocketException("unknown host: " + host, uhe);
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
 				throw new WebSocketException(
 						"error while creating secure socket to " + url, ioe);
 			}
@@ -272,14 +268,14 @@ public class WebSocketConnection implements WebSocket {
 	}
 
 	private void closeStreams() throws WebSocketException {
-		Log.d("ClosedStreams", "closeStreams");
+		if (Log.isLoggable(TAG, DEBUG))
+			Log.d(TAG, "closeStreams");
 
 		try {
 			input.close();
 			output.close();
 			socket.close();
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
 			throw new WebSocketException(
 					"error while closing websocket connection: ", ioe);
 		}
