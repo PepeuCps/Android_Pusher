@@ -40,7 +40,7 @@ import javax.net.ssl.SSLSocketFactory;
 import android.util.Log;
 
 public class WebSocketConnection implements WebSocket {
-	private static final String TAG = "WebSocketConnection";
+	private static final String TAG = "WSConnection";
 	private URI url = null;
 	private WebSocketEventHandler eventHandler = null;
 
