@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import de.roderick.weberknecht.WebSocket;
 import de.roderick.weberknecht.WebSocketConnection;
 import de.roderick.weberknecht.WebSocketEventHandler;
 import de.roderick.weberknecht.WebSocketException;
@@ -48,15 +47,26 @@ public class Pusher
 	private final String HTTP_PREFIX = "ws://";
 	private final String HTTPS_PREFIX = "wss://";
 
-	private WebSocket mWebSocket = null;
+	private WebSocketConnection mWebSocket = null;
 	private final Handler mHandler;
 	private Thread mWatchdog; // handles reconnecting
 	private String mSocketId;
 	private String mApplicationkey;
 	private boolean mEncrypted;
+	private boolean trustAllCerts;
+	
 	
 	public final HashMap<String, Channel> channels = new HashMap<String, Channel>();
 	public final Channel globalChannel = new Channel("pusher_global_channel");
+	
+	public Pusher( String application_key, boolean encrypted, boolean trustAllCertificates )
+	{
+		mApplicationkey = application_key;
+		mEncrypted = encrypted;
+		trustAllCerts = trustAllCertificates;
+		mHandler = new PusherHandler(this);
+		connect();
+	}
 
 	public Pusher( String application_key, boolean encrypted )
 	{
@@ -84,7 +94,7 @@ public class Pusher
 	{
 		this(_mHandler, true);
 	}
-
+	
 	public void disconnect()
 	{
 		try
@@ -231,6 +241,7 @@ public class Pusher
 			if (Log.isLoggable(TAG, DEBUG))
 				Log.d(TAG, "Connecting to: " + url.toString());
 			mWebSocket = new WebSocketConnection( url );
+			mWebSocket.setTrustAllCerts(trustAllCerts);
 			mWebSocket.setEventHandler( new WebSocketEventHandler()
 			{
 				public void onOpen()

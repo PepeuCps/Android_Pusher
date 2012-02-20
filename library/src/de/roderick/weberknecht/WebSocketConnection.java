@@ -24,6 +24,8 @@
 package de.roderick.weberknecht;
 
 import static android.util.Log.DEBUG;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -31,13 +33,17 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-
-import android.util.Log;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 public class WebSocketConnection implements WebSocket {
 	private static final String TAG = "WSConnection";
@@ -52,6 +58,8 @@ public class WebSocketConnection implements WebSocket {
 
 	private WebSocketReceiver receiver = null;
 	private WebSocketHandshake handshake = null;
+	
+	private boolean trustAllCerts;
 
 	public WebSocketConnection(URI url) throws WebSocketException {
 		this(url, null);
@@ -61,6 +69,13 @@ public class WebSocketConnection implements WebSocket {
 			throws WebSocketException {
 		this.url = url;
 		handshake = new WebSocketHandshake(url, protocol);
+	}
+	
+	/**
+	 * @param trustAllCerts
+	 */
+	public void setTrustAllCerts(boolean trustAllCerts) {
+		this.trustAllCerts = trustAllCerts;
 	}
 
 	public void setEventHandler(WebSocketEventHandler eventHandler) {
@@ -252,8 +267,33 @@ public class WebSocketConnection implements WebSocket {
 				port = 443;
 			}
 			try {
-				SocketFactory factory = SSLSocketFactory.getDefault();
-				socket = factory.createSocket(host, port);
+				if (trustAllCerts)
+					try {
+						final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+							public X509Certificate[] getAcceptedIssuers() {
+								return new X509Certificate[0];
+							}
+
+							public void checkClientTrusted(
+									X509Certificate[] chain, String authType)
+									throws CertificateException {
+							}
+
+							public void checkServerTrusted(
+									X509Certificate[] chain, String authType)
+									throws CertificateException {
+							}
+						} };
+						SSLContext context = SSLContext.getInstance("TLS");
+						context.init(null, trustAllCerts, new SecureRandom());
+						socket = context.getSocketFactory().createSocket(host,
+								port);
+					} catch (GeneralSecurityException e) {
+						throw new WebSocketException("Security exception", e);
+					}
+				else
+					socket = SSLSocketFactory.getDefault().createSocket(host,
+							port);
 			} catch (UnknownHostException uhe) {
 				throw new WebSocketException("unknown host: " + host, uhe);
 			} catch (IOException ioe) {
