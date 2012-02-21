@@ -25,6 +25,7 @@ import de.roderick.weberknecht.WebSocketEventHandler;
 import de.roderick.weberknecht.WebSocketException;
 import de.roderick.weberknecht.WebSocketMessage;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -46,10 +47,10 @@ public class Pusher {
 	private final String HTTP_PREFIX = "ws://";
 	private final String HTTPS_PREFIX = "wss://";
 
-	private WebSocketConnection mWebSocket = null;
+	protected WebSocketConnection mWebSocket = null;
 	private final Handler mHandler;
 	private Thread mWatchdog; // handles reconnecting
-	private String mSocketId;
+	protected String mSocketId;
 	private String mApplicationkey;
 	private boolean mEncrypted;
 	private boolean trustAllCerts;
@@ -158,8 +159,25 @@ public class Pusher {
 		}
 	}
 
-	private void sendSubscribeMessage(Channel c) {
+	/**
+	 * Authenticate socket id and channel
+	 * 
+	 * @param channelName
+	 * @return auth value
+	 * @throws IOException
+	 */
+	protected String authenticate(String channelName) throws IOException {
+		return null;
+	}
+
+	private void sendSubscribeMessage(Channel c) throws IOException,
+			JSONException {
 		JSONObject data = new JSONObject();
+		if (c.name.startsWith("private-")) {
+			String auth = authenticate(c.name);
+			if (auth != null)
+				data.put("auth", auth);
+		}
 
 		send("pusher:subscribe", data, c.name);
 	}
