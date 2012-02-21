@@ -70,10 +70,7 @@ public class Pusher
 
 	public Pusher( String application_key, boolean encrypted )
 	{
-		mApplicationkey = application_key;
-		mEncrypted = encrypted;
-		mHandler = new PusherHandler(this);
-		connect();
+		this(application_key, encrypted, false);
 	}
 	
 	public Pusher( String application_key )
