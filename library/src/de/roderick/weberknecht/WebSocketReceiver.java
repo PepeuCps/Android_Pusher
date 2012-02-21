@@ -66,7 +66,6 @@ public class WebSocketReceiver
 				}
 			}
 			catch (IOException ioe) {
-				ioe.printStackTrace();
 				handleError();
 			}
 		}
