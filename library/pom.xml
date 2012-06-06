@@ -9,7 +9,7 @@
 
 	<groupId>com.github.kevinsawicki</groupId>
 	<artifactId>android-pusher</artifactId>
-	<version>0.6</version>
+	<version>0.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Android Pusher</name>
 	<description>Android library for pusher.com</description>
