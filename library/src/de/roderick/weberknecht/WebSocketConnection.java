@@ -24,6 +24,7 @@
 package de.roderick.weberknecht;
 
 import static android.util.Log.DEBUG;
+import android.net.SSLCertificateSocketFactory;
 import android.util.Log;
 
 import java.io.IOException;
@@ -273,8 +274,8 @@ public class WebSocketConnection implements WebSocket {
 						throw new WebSocketException("Security exception", e);
 					}
 				else
-					socket = SSLSocketFactory.getDefault().createSocket(host,
-							port);
+					socket = SSLCertificateSocketFactory.getDefault(0)
+							.createSocket(host, port);
 			} catch (UnknownHostException uhe) {
 				throw new WebSocketException("unknown host: " + host, uhe);
 			} catch (IOException ioe) {
