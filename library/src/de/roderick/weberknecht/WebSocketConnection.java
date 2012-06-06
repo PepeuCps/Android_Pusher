@@ -58,7 +58,7 @@ public class WebSocketConnection implements WebSocket {
 
 	private WebSocketReceiver receiver = null;
 	private WebSocketHandshake handshake = null;
-	
+
 	private boolean trustAllCerts;
 
 	public WebSocketConnection(URI url) throws WebSocketException {
@@ -70,7 +70,7 @@ public class WebSocketConnection implements WebSocket {
 		this.url = url;
 		handshake = new WebSocketHandshake(url, protocol);
 	}
-	
+
 	/**
 	 * @param trustAllCerts
 	 */
@@ -174,25 +174,6 @@ public class WebSocketConnection implements WebSocket {
 			throw new WebSocketException("error while sending text data", ioe);
 		}
 	}
-
-	// public synchronized void send(byte[] data)
-	// throws WebSocketException
-	// {
-	// if (!connected) {
-	// throw new
-	// WebSocketException("error while sending binary data: not connected");
-	// }
-	//
-	// try {
-	// output.write(0x80);
-	// output.write(data.length);
-	// output.write(data);
-	// output.write("\r\n".getBytes());
-	// }
-	// catch (IOException ioe) {
-	// throw new WebSocketException("error while sending binary data: ", ioe);
-	// }
-	// }
 
 	public void handleReceiverError() {
 		try {
