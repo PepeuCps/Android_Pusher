@@ -308,7 +308,11 @@ public class Pusher {
 		}
 	}
 
-	@Deprecated
+    public boolean isConnected() {
+        return (mWebSocket != null && mWebSocket.isConnected());
+    }
+
+    @Deprecated
 	public void connect(String application_key, boolean encrypted) {
 		mApplicationkey = application_key;
 		mEncrypted = encrypted;
